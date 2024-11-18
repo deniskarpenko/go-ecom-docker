@@ -13,7 +13,8 @@ services:
       - DB_PASSWORD=example
       - DB_NAME=mydatabase
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
 
   mariadb:
     image: mariadb:10.11
@@ -25,9 +26,22 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+      - ./mariadb-config:/etc/mysql/conf.d
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - "8081:8080"
 
 volumes:
   mariadb_data:

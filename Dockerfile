@@ -18,6 +18,9 @@ WORKDIR /app
 # Copy the binary from the builder stage
 COPY --from=builder /app/app .
 
+# Install make
+RUN apt-get update && apt-get install -y make && rm -rf /var/lib/apt/lists/*
+
 # Expose the application port
 EXPOSE 8080
 
