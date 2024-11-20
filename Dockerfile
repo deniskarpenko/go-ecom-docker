@@ -2,21 +2,14 @@
 FROM golang:1.21 AS builder
 
 # Set the working directory
-WORKDIR /app
+WORKDIR /app/cmd/web
 
 # Copy the source code
 COPY app/ .
 
-# Build the application
-RUN go build -o app .
-
 # Use a compatible runtime image
 FROM debian:bookworm-slim
 # Newer version of Debian
-WORKDIR /app
-
-# Copy the binary from the builder stage
-COPY --from=builder /app/app .
 
 # Install make
 RUN apt-get update && apt-get install -y make && rm -rf /var/lib/apt/lists/*
@@ -24,5 +17,8 @@ RUN apt-get update && apt-get install -y make && rm -rf /var/lib/apt/lists/*
 # Expose the application port
 EXPOSE 8080
 
-# Run the application
-CMD ["./app"]
+RUN go mod tidy
+
+RUN go build -o webapp
+
+CMD ["./webapp"]
